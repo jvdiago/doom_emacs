@@ -95,6 +95,22 @@
         (flycheck-add-next-checker 'lsp 'golangci-lint)))))
 
 ;;; ---------------------------------------------------------------------------
+;;; Go: tame gopls/lsp on repos with large vendored trees. The CPU spikes come
+;;; from AV (CrowdStrike) scanning the file-watch churn over vendor/, not from
+;;; type-checking. Vendor is still fully type-checked -- we only stop
+;;; *watching/indexing* it.
+;;; ---------------------------------------------------------------------------
+(after! lsp-mode
+  ;; lsp-mode's own OS file-watchers over vendor/ are the main offender.
+  ;; Dropping them never affects type-checking or goto-definition.
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]vendor\\'"))
+
+(after! lsp-go
+  ;; gopls: don't watch/symbol-index vendor; keep symbol search to the workspace.
+  (setq lsp-go-directory-filters ["-vendor"]
+        lsp-go-symbol-scope "workspace"))
+
+;;; ---------------------------------------------------------------------------
 ;;; vterm: force the native module to build for arm64. Without this, a runtime
 ;;; `vterm-module-compile' can emit x86_64 objects that fail to link against
 ;;; Homebrew's arm64 libvterm ("required architecture x86_64" ld error).
