@@ -55,8 +55,6 @@
 
 ;;; ---------------------------------------------------------------------------
 ;;; Python: ruff for both import-sort and format-on-save
-;;; (Spacemacs python-formatter 'ruff, python-format-on-save t,
-;;;  python-sort-imports-on-save t). `(format +onsave)' triggers it.
 ;;; ---------------------------------------------------------------------------
 (after! apheleia
   (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff-isort ruff))
@@ -77,7 +75,6 @@
 
 ;;; ---------------------------------------------------------------------------
 ;;; Go: tab width 4, golangci-lint diagnostics
-;;; (Spacemacs go-tab-width 4, go-use-golangci-lint t; gofmt-on-save via `(format +onsave)')
 ;;; ---------------------------------------------------------------------------
 (setq-hook! '(go-mode-hook go-ts-mode-hook) tab-width 4)
 
@@ -117,28 +114,3 @@
 ;;; ---------------------------------------------------------------------------
 (after! vterm
   (setq vterm-module-cmake-args "-DCMAKE_OSX_ARCHITECTURES=arm64"))
-
-;;; ---------------------------------------------------------------------------
-;;; helm-projectile fuzzy matching (SPC p f) calls `flx-score' directly, but the
-;;; helm module only loads `flx' via helm-flx's helm-mode hook (which
-;;; helm-projectile bypasses) -> "void-function flx-score". Load flx eagerly.
-;;; ---------------------------------------------------------------------------
-(after! helm-projectile
-  (require 'flx))
-
-;;; ---------------------------------------------------------------------------
-;;; Shorts buffers before helm-mini displays so SPC b b shows workspace buffers sorted
-;;; ---------------------------------------------------------------------------
-
-(defun +helm/workspace-mini ()
-  "Like the built-in one, but sorted most-recently-used first."
-  (interactive)
-  (unless (modulep! :ui workspaces)
-    (user-error "This command requires the :ui workspaces module"))
-  (let ((mru (buffer-list))) ; real global MRU order, captured before persp-mode shadows it
-    (with-no-warnings
-      (with-persp-buffer-list
-          (:sortp (lambda (a b)
-                    (< (or (cl-position a mru) most-positive-fixnum)
-                       (or (cl-position b mru) most-positive-fixnum))))
-        (helm-mini)))))

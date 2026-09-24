@@ -11,7 +11,7 @@
        ;;layout
 
        :completion
-       (helm +fuzzy +icons)     ; Spacemacs `helm' layer (kept as primary completion)
+       (vertico +icons)         ; modern completion (replaces the deprecated helm/ivy modules)
        (corfu +icons)           ; Spacemacs `auto-completion' layer (in-buffer completion + docs)
 
        :ui
